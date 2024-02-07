@@ -29,11 +29,22 @@ async function retrieveZoneMessages(
   resolver: FinalResolver,
 ): Promise<MessageByKey> {
   const question = new Question('.', recordType, classType);
-  return zoneNames.reduce(async (messages, zoneName) => {
-    const messageByKey = await messages;
+  //return zoneNames.reduce(async (messages, zoneName) => {
+  //  const messageByKey = await messages;
+  //  const message = await resolver(question.shallowCopy({ name: zoneName }));
+  //  return { ...messageByKey, [`${zoneName}/${recordType}`]: message };
+  //}, Promise.resolve({} as MessageByKey));
+
+  const promises = zoneNames.map(async (zoneName) => {
     const message = await resolver(question.shallowCopy({ name: zoneName }));
-    return { ...messageByKey, [`${zoneName}/${recordType}`]: message };
-  }, Promise.resolve({} as MessageByKey));
+    return { key: `${zoneName}/${recordType}`, value: message };
+  });
+  const results = await Promise.all(promises);
+  const messageByKey: { [key: string]: any } = {};
+  results.forEach(({ key, value }) => {
+    messageByKey[key] = value;
+  });
+  return messageByKey as MessageByKey;
 }
 
 export class UnverifiedChain {
@@ -72,20 +83,38 @@ export class UnverifiedChain {
       return message instanceof Buffer ? Message.deserialise(message) : message;
     };
     const zoneNames = getZonesInName(question.name);
-    const dnskeyMessages = await retrieveZoneMessages(
-      zoneNames,
-      DnssecRecordType.DNSKEY,
-      question.classId,
-      finalResolver,
-    );
-    const dsMessages = await retrieveZoneMessages(
-      zoneNames.slice(1), // Skip the root DS
-      DnssecRecordType.DS,
-      question.classId,
-      finalResolver,
-    );
+
+    //const dnskeyMessages = await retrieveZoneMessages(
+    //  zoneNames,
+    //  DnssecRecordType.DNSKEY,
+    //  question.classId,
+    //  finalResolver,
+    //);
+    //const dsMessages = await retrieveZoneMessages(
+    //  zoneNames.slice(1), // Skip the root DS
+    //  DnssecRecordType.DS,
+    //  question.classId,
+    //  finalResolver,
+    //);
+    //const response = await finalResolver(question);
+
+    const [dnskeyMessages, dsMessages, response] = await Promise.all([
+      retrieveZoneMessages(
+        zoneNames,
+        DnssecRecordType.DNSKEY,
+        question.classId,
+        finalResolver,
+      ),
+      retrieveZoneMessages(
+        zoneNames.slice(1), // Skip the root DS
+        DnssecRecordType.DS,
+        question.classId,
+        finalResolver,
+      ),
+      finalResolver(question),
+    ]);
+
     const zoneMessageByKey: MessageByKey = { ...dnskeyMessages, ...dsMessages };
-    const response = await finalResolver(question);
     return new UnverifiedChain(question, response, zoneMessageByKey);
   }
 

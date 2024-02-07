@@ -28,10 +28,15 @@ export async function dnssecLookUp(
   resolver: Resolver,
   options: Partial<VerificationOptions> = {},
 ): Promise<ChainVerificationResult> {
+  console.time('retrieve');
   const unverifiedChain = await UnverifiedChain.retrieve(question, resolver);
+  console.timeEnd('retrieve');
+  console.time('verify');
   const datePeriod = convertDatePeriod(options.dateOrPeriod ?? new Date());
   const dsData = options.trustAnchors
     ? convertTrustAnchors(options.trustAnchors)
     : IANA_TRUST_ANCHORS;
-  return unverifiedChain.verify(datePeriod, dsData);
+  const result = unverifiedChain.verify(datePeriod, dsData);
+  console.timeEnd('verify');
+  return result;
 }
