@@ -58,6 +58,7 @@
     "typescript": "^4.9.5"
   },
   "dependencies": {
+    "del-cli": "^5.1.0",
     "npm-run-all": "^4.1.5",
     "@leichtgewicht/dns-packet": "^6.0.3",
     "@peculiar/asn1-schema": "^2.3.8",
