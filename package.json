@@ -21,7 +21,6 @@
   ],
   "scripts": {
     "build": "run-s clean tsc",
-    "postinstall": "npm run build",
     "fix": "run-s fix:*",
     "fix:prettier": "prettier \"src/**/*.ts\" --write",
     "fix:eslint": "eslint -c .eslintrc.cjs --fix src",
