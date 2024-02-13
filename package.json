@@ -1,6 +1,6 @@
 {
-  "name": "@relaycorp/dnssec",
-  "version": "1.0.0",
+  "name": "dnssec",
+  "version": "1.0.1",
   "author": {
     "email": "no-reply@relaycorp.tech",
     "name": "Relaycorp, Inc.",
@@ -10,7 +10,7 @@
   "type": "module",
   "typings": "build/lib/index.d.ts",
   "main": "build/lib/index.js",
-  "repository": "https://github.com/relaycorp/dnssec-js",
+  "repository": "https://github.com/majunze2001/dnssec-js",
   "homepage": "https://docs.relaycorp.tech/dnssec-js/",
   "license": "MIT",
   "keywords": [
@@ -21,6 +21,7 @@
   ],
   "scripts": {
     "build": "run-s clean tsc",
+    "postinstall": "npm run build",
     "fix": "run-s fix:*",
     "fix:prettier": "prettier \"src/**/*.ts\" --write",
     "fix:eslint": "eslint -c .eslintrc.cjs --fix src",
@@ -60,6 +61,7 @@
     "@leichtgewicht/dns-packet": "^6.0.3",
     "@peculiar/asn1-schema": "^2.3.8",
     "bigint-buffer": "^1.1.5",
+    "browserify": "^17.0.0",
     "date-fns": "^2.30.0"
   },
   "prettier": "@relaycorp/shared-config/.prettierrc.json",
