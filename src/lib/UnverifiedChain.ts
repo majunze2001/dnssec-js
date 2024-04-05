@@ -29,11 +29,6 @@ async function retrieveZoneMessages(
   resolver: FinalResolver,
 ): Promise<MessageByKey> {
   const question = new Question('.', recordType, classType);
-  //return zoneNames.reduce(async (messages, zoneName) => {
-  //  const messageByKey = await messages;
-  //  const message = await resolver(question.shallowCopy({ name: zoneName }));
-  //  return { ...messageByKey, [`${zoneName}/${recordType}`]: message };
-  //}, Promise.resolve({} as MessageByKey));
 
   const promises = zoneNames.map(async (zoneName) => {
     const message = await resolver(question.shallowCopy({ name: zoneName }));
@@ -83,20 +78,6 @@ export class UnverifiedChain {
       return message instanceof Buffer ? Message.deserialise(message) : message;
     };
     const zoneNames = getZonesInName(question.name);
-
-    //const dnskeyMessages = await retrieveZoneMessages(
-    //  zoneNames,
-    //  DnssecRecordType.DNSKEY,
-    //  question.classId,
-    //  finalResolver,
-    //);
-    //const dsMessages = await retrieveZoneMessages(
-    //  zoneNames.slice(1), // Skip the root DS
-    //  DnssecRecordType.DS,
-    //  question.classId,
-    //  finalResolver,
-    //);
-    //const response = await finalResolver(question);
 
     const [dnskeyMessages, dsMessages, response] = await Promise.all([
       retrieveZoneMessages(

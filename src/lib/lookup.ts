@@ -7,6 +7,7 @@ import { DatePeriod, type IDatePeriod } from './dates.js';
 import type { TrustAnchor } from './TrustAnchor.js';
 import { DsData } from './records/DsData.js';
 import { IANA_TRUST_ANCHORS } from './ianaTrustAnchors.js';
+import { performance } from "perf_hooks";
 
 function convertTrustAnchors(trustAnchors: readonly TrustAnchor[]): readonly DsData[] {
   return trustAnchors.map(
@@ -28,15 +29,14 @@ export async function dnssecLookUp(
   resolver: Resolver,
   options: Partial<VerificationOptions> = {},
 ): Promise<ChainVerificationResult> {
-  console.time('retrieve');
   const unverifiedChain = await UnverifiedChain.retrieve(question, resolver);
-  console.timeEnd('retrieve');
-  console.time('verify');
+  const startTime = performance.now();
   const datePeriod = convertDatePeriod(options.dateOrPeriod ?? new Date());
   const dsData = options.trustAnchors
     ? convertTrustAnchors(options.trustAnchors)
     : IANA_TRUST_ANCHORS;
   const result = unverifiedChain.verify(datePeriod, dsData);
-  console.timeEnd('verify');
+  const endTime = performance.now();
+  console.log(`Verify: ${endTime - startTime} ms`)
   return result;
 }
